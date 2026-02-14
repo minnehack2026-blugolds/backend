@@ -34,6 +34,7 @@
 4. Click Create → Database
 5. Name it: `campus_marketplace`
 6. Click Save.
+7. Use the **Script** in `/scripts`
 
 ## Backend Setup
 
