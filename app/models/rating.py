@@ -6,7 +6,7 @@ from app.core.db import Base
 class Rating(Base):
     __tablename__ = "ratings"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     transaction_id: Mapped[int] = mapped_column(ForeignKey("transactions.id"))
 
     rater_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
