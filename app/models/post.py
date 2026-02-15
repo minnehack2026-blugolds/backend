@@ -17,3 +17,4 @@ class Post(Base):
     status: Mapped[str] = mapped_column(String(20), default="active")
 
     created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    
