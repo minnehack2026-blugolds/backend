@@ -3,10 +3,16 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.db import engine, Base
+
+# Routers
+from app.routers.auth import router as auth_router
 from app.routers.posts import router as posts_router
 from app.routers.transactions import router as tx_router
 from app.routers.ratings import router as ratings_router
-from app.routers.auth import router as auth_router
+from app.routers.chat import router as chat_router  
+
+import app.models 
+
 
 app = FastAPI(title="Campus Marketplace API")
 
@@ -17,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.on_event("startup")
 async def startup():
@@ -32,3 +37,4 @@ app.include_router(auth_router)
 app.include_router(posts_router)
 app.include_router(tx_router)
 app.include_router(ratings_router)
+app.include_router(chat_router)  

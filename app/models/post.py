@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy import String, Integer, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -7,7 +8,7 @@ from app.core.db import Base
 class Post(Base):
     __tablename__ = "posts"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     seller_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
     title: Mapped[str] = mapped_column(String(160))
@@ -16,4 +17,8 @@ class Post(Base):
 
     status: Mapped[str] = mapped_column(String(20), default="active")
 
-    created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    from datetime import datetime
+
+    created_at: Mapped[datetime] = mapped_column(
+    DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
