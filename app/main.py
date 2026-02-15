@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.routers.location import router as location_router
 from app.core.config import settings
 from app.core.db import engine, Base
 from app.routers.posts import router as posts_router
@@ -31,3 +31,5 @@ def health():
 app.include_router(posts_router)
 app.include_router(tx_router)
 app.include_router(ratings_router)
+app.include_router(location_router)
+
