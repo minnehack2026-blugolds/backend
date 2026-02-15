@@ -6,6 +6,7 @@ from app.core.db import engine, Base
 from app.routers.posts import router as posts_router
 from app.routers.transactions import router as tx_router
 from app.routers.ratings import router as ratings_router
+from app.routers.auth import router as auth_router
 
 app = FastAPI(title="Campus Marketplace API")
 
@@ -27,7 +28,7 @@ async def startup():
 def health():
     return {"ok": True}
 
-
+app.include_router(auth_router)
 app.include_router(posts_router)
 app.include_router(tx_router)
 app.include_router(ratings_router)
