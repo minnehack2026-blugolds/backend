@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.db import get_db
 from app.core.auth import require_user, CurrentUser
 from app.models.post import Post
@@ -27,9 +26,27 @@ async def create_post(payload: PostCreate,
 
 
 @router.get("", response_model=list[PostOut])
-async def list_posts(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Post))
-    return list(result.scalars().all())
+async def list_posts(
+    min_price: int | None = None,
+    max_price: int | None = None,
+    seller_id: int | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    query = select(Post).where(Post.status == "active")
+
+    if min_price is not None:
+        query = query.where(Post.price_cents >= min_price)
+
+    if max_price is not None:
+        query = query.where(Post.price_cents <= max_price)
+
+    if seller_id is not None:
+        query = query.where(Post.seller_id == seller_id)
+
+    query = query.order_by(Post.created_at.desc())
+
+    result = await db.execute(query)
+    return result.scalars().all()
 
 
 @router.get("/{post_id}", response_model=PostOut)
@@ -61,16 +78,19 @@ async def update_post(post_id: int,
 
 
 @router.delete("/{post_id}")
-async def delete_post(post_id: int,
-                      db: AsyncSession = Depends(get_db),
-                      user: CurrentUser = Depends(require_user)):
+async def delete_post(
+    post_id: int,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(require_user),
+):
     post = await db.get(Post, post_id)
     if not post:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=404, detail="Post not found")
 
     if post.seller_id != user.id:
         raise HTTPException(status_code=403)
 
-    await db.delete(post)
+    post.status = "deleted"
     await db.commit()
+
     return {"success": True}
