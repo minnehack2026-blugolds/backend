@@ -5,6 +5,9 @@ from app.core.db import get_db
 from app.core.auth import require_user, CurrentUser
 from app.models.post import Post
 from app.schemas.post import PostCreate, PostUpdate, PostOut
+from typing import Optional
+from geopy.distance import geodesic
+
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -30,6 +33,9 @@ async def list_posts(
     min_price: int | None = None,
     max_price: int | None = None,
     seller_id: int | None = None,
+    latitude: float | None = None,
+    longitude: float | None = None,
+    radius_miles: float = 10,
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Post).where(Post.status == "active")
@@ -46,13 +52,26 @@ async def list_posts(
     query = query.order_by(Post.created_at.desc())
 
     result = await db.execute(query)
-    return result.scalars().all()
+    posts = result.scalars().all()
 
+    if latitude is not None and longitude is not None:
+        def is_nearby(post):
+            if post.latitude is None or post.longitude is None:
+                return False
+
+            post_location = (post.latitude, post.longitude)
+            user_location = (latitude, longitude)
+
+            return geodesic(post_location, user_location).miles <= radius_miles
+
+        posts = [post for post in posts if is_nearby(post)]
+
+    return posts
 
 @router.get("/{post_id}", response_model=PostOut)
 async def get_post(post_id: int, db: AsyncSession = Depends(get_db)):
     post = await db.get(Post, post_id)
-    if not post:
+    if not post or post.status != "active" :
         raise HTTPException(status_code=404)
     return post
 
