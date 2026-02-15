@@ -112,3 +112,23 @@ CREATE INDEX IF NOT EXISTS idx_transactions_status    ON transactions(status);
 
 CREATE INDEX IF NOT EXISTS idx_ratings_ratee_id  ON ratings(ratee_id);
 CREATE INDEX IF NOT EXISTS idx_ratings_rater_id  ON ratings(rater_id);
+
+
+ -- =========================
+-- Universities table with  mn univerisities and location.
+-- =========================
+CREATE TABLE universities (
+    id SERIAL PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    country TEXT
+);
+
+CREATE TABLE universities(
+ name VARCHAR(100),
+ latitude DECIMAL (10,8),
+ longitude DECIMAL (11,8)
+);
+select name, latitude, longitude 
+FROM universities;
+select name from universities;
+
